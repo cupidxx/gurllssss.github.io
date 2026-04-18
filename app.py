@@ -14,8 +14,8 @@ def analyze():
     data = request.get_json()
 
     sender = data.get("sender_email", "")
-    subject = data.get("subject_line", "")
-    body = data.get("email_body", "")
+    subject = data.get("subject", "")
+    body = data.get("body", "")
 
     flags = []
 
@@ -26,10 +26,24 @@ def analyze():
     if "click here" in body.lower():
         flags.append("Suspicious link phrase")
 
-    risk = "High" if len(flags) >= 2 else "Medium" if len(flags) == 1 else "Low"
+    score = 20
+    if len(flags) == 1:
+        score = 55
+        verdict = "Medium Risk"
+    elif len(flags) >= 2:
+        score = 85
+        verdict = "High Risk"
+    else:
+        verdict = "Low Risk"
+
+    sender_domain = "-"
+    if "@" in sender:
+        sender_domain = sender.split("@")[-1].lower()
 
     return jsonify({
-        "risk_score": risk,
+        "verdict": verdict,
+        "risk_score": score,
+        "sender_domain": sender_domain,
         "flags": flags,
         "explanation": "Basic phishing analysis"
     })
