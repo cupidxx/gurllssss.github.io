@@ -1,3 +1,5 @@
+const API_URL = "https://phishshield-backend-sgzh.onrender.com/analyze";
+
 const form = document.getElementById("emailForm");
 const resultCard = document.getElementById("resultCard");
 
@@ -51,7 +53,7 @@ form.addEventListener("submit", async (e) => {
   const body = document.getElementById("body").value.trim();
 
   try {
-    const response = await fetch("http://127.0.0.1:5055/analyze", {
+    const response = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -59,15 +61,19 @@ form.addEventListener("submit", async (e) => {
       body: JSON.stringify({ sender_email, subject, body }),
     });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
     const data = await response.json();
 
-    verdictEl.textContent = data.verdict;
-    scoreEl.textContent = `${data.risk_score}/100`;
+    verdictEl.textContent = data.verdict || "Unknown";
+    scoreEl.textContent = data.risk_score ? `${data.risk_score}/100` : "-";
     domainEl.textContent = data.sender_domain || "-";
 
     flagsList.innerHTML = "";
 
-    if (data.flags.length === 0) {
+    if (!data.flags || data.flags.length === 0) {
       const li = document.createElement("li");
       li.textContent = "No obvious phishing red flags were detected.";
       flagsList.appendChild(li);
@@ -79,12 +85,12 @@ form.addEventListener("submit", async (e) => {
       });
     }
 
-    updateRiskBanner(data.verdict);
+    updateRiskBanner(data.verdict || "Low Risk");
     plainExplanation.textContent = buildExplanation(data);
 
     resultCard.classList.remove("hidden");
   } catch (error) {
-    alert("Could not connect to backend. Make sure Flask is running on port 5055.");
+    alert("Could not connect to backend. Please refresh and try again.");
     console.error(error);
   }
 });
