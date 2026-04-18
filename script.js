@@ -97,6 +97,8 @@ const chatBody = document.getElementById("chatBody");
 const chatInput = document.getElementById("chatInput");
 const sendChat = document.getElementById("sendChat");
 
+let waitingForUrlInput = false;
+
 chatLauncher.addEventListener("click", () => {
   chatWidget.classList.remove("hidden");
 });
@@ -144,6 +146,102 @@ function getCurrentUrlContext() {
   return urlField ? urlField.value.trim() : "";
 }
 
+function extractUrl(text) {
+  const match = text.match(/https?:\/\/[^\s]+|www\.[^\s]+/i);
+  return match ? match[0] : null;
+}
+
+function analyzeUrl(url) {
+  const suspiciousWords = [
+    "login",
+    "verify",
+    "secure",
+    "update",
+    "account",
+    "bank",
+    "paypal",
+    "gift",
+    "bonus",
+    "claim",
+    "free",
+    "password",
+    "signin"
+  ];
+
+  const suspiciousTlds = [".ru", ".tk", ".xyz", ".top", ".click", ".buzz", ".work"];
+
+  let score = 0;
+  const reasons = [];
+  let cleanUrl = url.trim().toLowerCase();
+
+  if (cleanUrl.startsWith("www.")) {
+    cleanUrl = "http://" + cleanUrl;
+  }
+
+  suspiciousWords.forEach((word) => {
+    if (cleanUrl.includes(word)) {
+      score += 1;
+      reasons.push(`Contains suspicious word: ${word}`);
+    }
+  });
+
+  suspiciousTlds.forEach((tld) => {
+    if (cleanUrl.includes(tld)) {
+      score += 2;
+      reasons.push(`Suspicious domain ending: ${tld}`);
+    }
+  });
+
+  if (cleanUrl.includes("@")) {
+    score += 2;
+    reasons.push("Contains @ symbol, which can hide the real destination");
+  }
+
+  if (cleanUrl.includes("bit.ly") || cleanUrl.includes("tinyurl") || cleanUrl.includes("shorturl")) {
+    score += 2;
+    reasons.push("Uses a shortened URL");
+  }
+
+  const hyphenCount = (cleanUrl.match(/-/g) || []).length;
+  if (hyphenCount >= 3) {
+    score += 1;
+    reasons.push("Too many hyphens in the URL");
+  }
+
+  if (cleanUrl.length > 60) {
+    score += 1;
+    reasons.push("Very long URL");
+  }
+
+  if (cleanUrl.startsWith("http://")) {
+    score += 1;
+    reasons.push("Does not use secure HTTPS");
+  }
+
+  let risk = "🟢 Safe";
+  if (score >= 5) {
+    risk = "🔴 High Risk";
+  } else if (score >= 2) {
+    risk = "🟡 Suspicious";
+  }
+
+  return { risk, reasons, score, cleanUrl };
+}
+
+function buildUrlReply(url) {
+  const result = analyzeUrl(url);
+
+  let reply = `${result.risk}<br><br><strong>URL:</strong> ${url}<br><strong>Score:</strong> ${result.score}`;
+
+  if (result.reasons.length > 0) {
+    reply += `<br><br><strong>Why I flagged it:</strong><br>• ${result.reasons.join("<br>• ")}`;
+  } else {
+    reply += `<br><br>No obvious phishing patterns found in this quick scan.`;
+  }
+
+  return reply;
+}
+
 function handleQuickAction(action) {
   if (action === "email-check") {
     const { sender, subject, body } = getCurrentEmailContext();
@@ -159,32 +257,25 @@ function handleQuickAction(action) {
       <strong>Subject:</strong> ${subject || "Not entered"}<br><br>
       I recommend clicking the main <strong>Analyze Email</strong> button to get the full phishing score.`
     );
+    return;
   }
 
   if (action === "url-check") {
     const currentUrl = getCurrentUrlContext();
 
-    if (!currentUrl) {
-      addBotMessage("I can’t find a URL field yet. If you already built a URL checker, make sure its input id is <strong>url_input</strong>, <strong>url</strong>, or <strong>website_url</strong>.");
+    if (currentUrl) {
+      addBotMessage(buildUrlReply(currentUrl));
+      waitingForUrlInput = false;
       return;
     }
 
-    let msg = `Current URL found: <strong>${currentUrl}</strong><br><br>`;
-
-    if (currentUrl.includes("@")) {
-      msg += "⚠️ This URL contains an @ symbol, which can be suspicious.<br>";
-    }
-    if (currentUrl.includes("bit.ly") || currentUrl.includes("tinyurl")) {
-      msg += "⚠️ This looks like a shortened URL.<br>";
-    }
-    if (currentUrl.startsWith("http://")) {
-      msg += "⚠️ This is not using HTTPS.<br>";
-    }
-    if (!msg.includes("⚠️")) {
-      msg += "No obvious URL red flags from this quick scan.";
-    }
-
-    addBotMessage(msg);
+    waitingForUrlInput = true;
+    addBotMessage(
+      `Paste the suspicious URL here now.<br><br>
+      Example:<br>
+      <strong>https://secure-login-paypal.xyz</strong>`
+    );
+    return;
   }
 
   if (action === "quiz-start") {
@@ -196,6 +287,7 @@ function handleQuickAction(action) {
       C. Clear job description<br><br>
       Type A, B, or C.`
     );
+    return;
   }
 
   if (action === "tips") {
@@ -218,6 +310,23 @@ document.querySelectorAll(".quick-btn").forEach((btn) => {
 
 function respondToChat(message) {
   const msg = message.toLowerCase().trim();
+  const pastedUrl = extractUrl(message);
+
+  if (waitingForUrlInput) {
+    if (pastedUrl) {
+      addBotMessage(buildUrlReply(pastedUrl));
+      waitingForUrlInput = false;
+      return;
+    }
+
+    addBotMessage("Please paste a valid link starting with <strong>http://</strong>, <strong>https://</strong>, or <strong>www.</strong>");
+    return;
+  }
+
+  if (pastedUrl) {
+    addBotMessage(buildUrlReply(pastedUrl));
+    return;
+  }
 
   if (msg === "b") {
     addBotMessage("✅ Correct. “Selected without interview” is a major phishing/job scam red flag.");
@@ -234,8 +343,13 @@ function respondToChat(message) {
     return;
   }
 
-  if (msg.includes("check url")) {
-    handleQuickAction("url-check");
+  if (msg.includes("check url") || msg.includes("check link") || msg.includes("analyze url") || msg.includes("analyze link")) {
+    waitingForUrlInput = true;
+    addBotMessage(
+      `Paste the suspicious URL here now.<br><br>
+      Example:<br>
+      <strong>https://secure-login-paypal.xyz</strong>`
+    );
     return;
   }
 
@@ -274,7 +388,7 @@ function respondToChat(message) {
     • Check Current URL<br>
     • Scam Quiz<br>
     • Safety Tips<br><br>
-    Try typing: <strong>analyze email</strong>, <strong>check url</strong>, or <strong>tips</strong>.`
+    Try typing: <strong>analyze email</strong>, <strong>check url</strong>, or paste a full suspicious link directly.`
   );
 }
 
