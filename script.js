@@ -1,4 +1,4 @@
-const API_URL = "https://phishshield-backend-sgzh.onrender.com/analyze";
+const API_URL = "https://gurlIsssss-github-io.onrender.com/analyze";;
 
 const form = document.getElementById("emailForm");
 const resultCard = document.getElementById("resultCard");
