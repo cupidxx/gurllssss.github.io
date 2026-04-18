@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishShield</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+  <div class="bg-orb orb3"></div>
+
+  <main class="container">
+    <section class="hero">
+      <div class="badge">AI-Powered Scam Detection</div>
+      <h1>PhishShield</h1>
+      <p class="subtitle">
+        Paste a sender email, subject line, and email body to detect phishing red flags instantly.
+      </p>
+    </section>
+
+    <section class="card glass">
+      <form id="emailForm">
+        <label for="sender_email">Sender Email</label>
+        <input
+          type="email"
+          id="sender_email"
+          placeholder="example@company-mail.com"
+          required
+        />
+
+        <label for="subject">Subject Line</label>
+        <input
+          type="text"
+          id="subject"
+          placeholder="Urgent: Verify Your Account"
+          required
+        />
+
+        <label for="body">Email Body</label>
+        <textarea
+          id="body"
+          rows="10"
+          placeholder="Paste the email body here..."
+          required
+        ></textarea>
+
+        <button type="submit" class="analyze-btn">Analyze Email</button>
+      </form>
+    </section>
+
+    <section id="resultCard" class="card glass hidden">
+      <h2>Analysis Result</h2>
+
+      <div id="riskBanner" class="risk-banner hidden">
+        <span id="riskBannerText">Risk Level</span>
+      </div>
+
+      <div class="result-top">
+        <div>
+          <p class="label">Verdict</p>
+          <h3 id="verdict">-</h3>
+        </div>
+        <div>
+          <p class="label">Risk Score</p>
+          <h3 id="score">-</h3>
+        </div>
+        <div>
+          <p class="label">Sender Domain</p>
+          <h3 id="domain">-</h3>
+        </div>
+      </div>
+
+      <div class="flags-section">
+        <p class="label">Detected Red Flags</p>
+        <ul id="flagsList"></ul>
+      </div>
+
+      <div class="explanation-box">
+        <p class="label">Why This Looks Suspicious</p>
+        <div id="plainExplanation">No explanation yet.</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating Chat Launcher -->
+  <button id="chatLauncher" class="chat-launcher" aria-label="Open ScamBot">
+    🛡️
+  </button>
+
+  <!-- Floating Chat Widget -->
+  <div id="chatWidget" class="chat-widget hidden">
+    <div class="chat-header">
+      <div class="chat-brand">
+        <div class="chat-logo">🛡️</div>
+        <div>
+          <h3>PhishShield Assistant</h3>
+          <p>Ask, check, and play</p>
+        </div>
+      </div>
+      <button id="closeChat" class="chat-close">✕</button>
+    </div>
+
+    <div class="chat-body" id="chatBody">
+      <div class="bot-msg">
+        <span class="msg-time">Now</span>
+        <p>Hi! I can help you:</p>
+
+        <div class="quick-actions">
+          <button class="quick-btn" data-action="email-check">Analyze Current Email</button>
+          <button class="quick-btn" data-action="url-check">Check Current URL</button>
+          <button class="quick-btn" data-action="quiz-start">Play Scam Quiz</button>
+          <button class="quick-btn" data-action="tips">Safety Tips</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-wrap">
+      <input
+        type="text"
+        id="chatInput"
+        class="chat-input"
+        placeholder="Ask ScamBot..."
+      />
+      <button id="sendChat" class="send-chat-btn">Send</button>
+    </div>
+
+    <div class="chat-footer">
+      Student-focused phishing assistant
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

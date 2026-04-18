@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishShield Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <section class="top-nav">
+      <div>
+        <h1 class="dashboard-title">PhishShield</h1>
+        <p class="dashboard-subtitle">
+          Analyze suspicious emails and uncover phishing red flags.
+        </p>
+      </div>
+
+      <button class="back-btn" onclick="window.location.href='index.html'">
+        ← Back
+      </button>
+    </section>
+
+    <!-- EMAIL ANALYZER -->
+    <section class="card glass">
+      <form id="emailForm">
+        <label>Sender Email</label>
+        <input id="senderEmail" type="text" placeholder="career@kvktech.us" />
+
+        <label>Subject Line</label>
+        <input id="subjectLine" type="text" placeholder="JOB OFFER: DATA ANALYST INTERN" />
+
+        <label>Email Body</label>
+        <textarea id="emailBody" rows="8" placeholder="Paste full email here..."></textarea>
+
+        <button type="submit" class="analyze-btn">Analyze Email</button>
+      </form>
+    </section>
+
+    <!-- ANALYSIS RESULT -->
+    <section id="resultCard" class="card glass hidden">
+      <h2>Analysis Result</h2>
+
+      <div class="final-decision-box">
+        <p class="label">Final Decision</p>
+        <h3 id="finalDecision">—</h3>
+      </div>
+
+      <div class="result-top">
+        <div>
+          <p class="label">Verdict</p>
+          <h3 id="verdict">—</h3>
+        </div>
+        <div>
+          <p class="label">Risk Score</p>
+          <h3 id="score">—</h3>
+          <div class="risk-bar">
+            <div id="riskFill" class="risk-fill"></div>
+          </div>
+        </div>
+        <div>
+          <p class="label">Sender Domain</p>
+          <h3 id="domain">—</h3>
+        </div>
+      </div>
+
+      <div class="flags-section">
+        <p class="label">Detected Red Flags</p>
+        <ul id="flagsList"></ul>
+      </div>
+    </section>
+
+    <!-- URL TOOL -->
+    <section class="card glass">
+      <h2>URL Threat Check</h2>
+      <p class="dashboard-subtitle">
+        Paste a suspicious link from the email and inspect it instantly.
+      </p>
+
+      <label for="urlInput">Suspicious URL</label>
+      <input
+        id="urlInput"
+        type="text"
+        placeholder="https://secure-login-update.xyz/verify"
+      />
+
+      <button id="analyzeUrlBtn" class="analyze-btn" type="button">Analyze URL</button>
+
+      <div id="urlResult" class="hidden url-result-box">
+        <p class="label">URL Verdict</p>
+        <h3 id="urlVerdict">—</h3>
+
+        <p class="label" style="margin-top: 18px;">Threat Score</p>
+        <h3 id="urlScore">—</h3>
+
+        <div class="risk-bar">
+          <div id="urlRiskFill" class="risk-fill"></div>
+        </div>
+
+        <div class="flags-section">
+          <p class="label">Why it was flagged</p>
+          <ul id="urlFlagsList"></ul>
+        </div>
+
+        <a id="virusTotalLink" href="#" target="_blank" class="external-link-btn">
+          Open in VirusTotal ↗
+        </a>
+      </div>
+    </section>
+
+    <!-- GAME MODE -->
+    <section class="card glass">
+      <div class="game-header">
+        <div>
+          <h2>Would You Click It?</h2>
+          <p class="dashboard-subtitle">We don’t just protect users — we train them.</p>
+        </div>
+        <div class="game-score-box">
+          Score: <span id="gameScore">0</span>
+        </div>
+      </div>
+
+      <div id="gameCard" class="game-card">
+        <p class="label">Sender</p>
+        <p id="gameSender" class="game-sender"></p>
+
+        <p class="label">Subject</p>
+        <p id="gameSubject" class="game-subject"></p>
+
+        <p class="label">Body</p>
+        <p id="gameBody" class="game-body"></p>
+
+        <div id="gameButtons" class="game-buttons">
+          <button id="scamBtn" class="game-btn scam-btn" type="button">🚨 Scam</button>
+          <button id="safeBtn" class="game-btn safe-btn" type="button">✅ Safe</button>
+        </div>
+
+        <div id="gameResult" class="hidden game-result">
+          <p id="gameFeedback" class="game-feedback"></p>
+          <p id="gameCorrectAnswer"></p>
+          <p id="gameReason"></p>
+          <button id="nextRoundBtn" class="next-round-btn" type="button">Next Round →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHATBOT -->
+    <section class="card glass">
+      <h2>AI Chat Defense</h2>
+      <p class="dashboard-subtitle">
+        Detection tells you what it is. Chat tells you what to do next.
+      </p>
+
+      <div class="chat-box">
+        <div id="chatMessages" class="chat-messages">
+          <div class="chat-bubble bot">
+            Hi, I’m PhishShield AI. Ask me what to do with a suspicious email.
+          </div>
+        </div>
+
+        <div class="quick-questions">
+          <button class="quick-btn" type="button" data-question="Is this recruiter legit?">Is this recruiter legit?</button>
+          <button class="quick-btn" type="button" data-question="Should I reply?">Should I reply?</button>
+          <button class="quick-btn" type="button" data-question="Why is this risky?">Why is this risky?</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
