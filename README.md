@@ -314,19 +314,6 @@ Each scenario includes feedback explaining why an email is safe or malicious.
 
 ---
 
-## 📸 Screenshots
-
-Add screenshots of:
-
-- Home Page
-- Email Analyzer
-- Analysis Results
-- URL Threat Checker
-- Phishing Awareness Game
-- AI Chat Assistant
-
----
-
 ## 📚 Learning Outcomes
 
 This project demonstrates:
